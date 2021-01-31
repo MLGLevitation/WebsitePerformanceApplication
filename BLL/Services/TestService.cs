@@ -31,7 +31,7 @@ namespace BLL.Services
             }
         }
 
-        public async Task MakeTestAsync(string host)
+        public async Task CreateTestAsync(string host)
         {
             List<string> urlAddresses = new UrlParser(host).GetURLAddresses();
 
