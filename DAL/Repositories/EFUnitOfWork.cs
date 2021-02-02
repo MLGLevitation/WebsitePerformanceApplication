@@ -17,11 +17,11 @@ namespace DAL.Repositories
         private PageRepository pageRepository;
         private HostRepository hostRepository;
 
+        
         public EFUnitOfWork(string connection)
         {
             db = new SiteMapContext(connection);
         }
-
 
         public IRepository<Page> Pages
         {

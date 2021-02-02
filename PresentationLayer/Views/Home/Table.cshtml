@@ -1,0 +1,26 @@
+﻿@model IEnumerable<PresentationLayer.Models.PageViewModel>
+
+@{
+    var grid = new WebGrid(source: Model, rowsPerPage: 25, ajaxUpdateContainerId: "tblGrid", ajaxUpdateCallback: "myfunc");
+}
+
+@if (Model != null)
+{
+
+    @grid.GetHtml(
+           tableStyle: "table table-bordered table-hover",
+        headerStyle: "thead-inverse",
+        caption: "Responce time table",
+        htmlAttributes: new { id = "gridtable" },
+        columns: grid.Columns(
+            grid.Column(columnName: "URL", header: "URL"),
+            grid.Column(columnName: "ResponseTime", header: "Response time",
+                    format: item => String.Format("{0} ms", item.ResponseTime)),
+            grid.Column(columnName: "MaxTime", header: "Max time",
+                    format: item => String.Format("{0} ms", item.MaxTime)),
+            grid.Column(columnName: "MinTime", header: "Min time",
+                    format: item => String.Format("{0} ms", item.MinTime))
+           )
+       )
+}
+

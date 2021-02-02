@@ -15,7 +15,6 @@ namespace BLL.Services
     {
         IUnitOfWork Database { get; set; }
         private readonly List<Page> pages;
-        private int percent;
 
         public TestService(IUnitOfWork db)
         {
@@ -38,19 +37,15 @@ namespace BLL.Services
             if (urlAddresses == null)
                 throw new Exception("Provide a valid URL");
 
-            ProgressBarHub.SendMessage("determining sitemap", 5);
 
             List<Task> tasks = new List<Task>();
 
-            percent = 500;
-            int execPer = 8500 / urlAddresses.Count;
             foreach (var url in urlAddresses)
             {
-                tasks.Add(MakeOnePageAsync(url, execPer));
+                tasks.Add(CreatePageAsync(url));
             }
             await Task.WhenAll(tasks);
 
-            ProgressBarHub.SendMessage("evaluating the time server response", 90);
 
             Test test = new Test()
             {
@@ -64,15 +59,12 @@ namespace BLL.Services
             Database.Tests.Create(test);
             Database.Save();
 
-            ProgressBarHub.SendMessage("saving test", 95);
         }
 
-        async Task MakeOnePageAsync(string url, int executionPercent)
+        async Task CreatePageAsync(string url)
         {
             Page page = await new PageService(url).CreatePageAsync();
             pages.Add(page);
-            percent += executionPercent;
-            ProgressBarHub.SendMessage("", percent / 100);
         }
 
         public IEnumerable<TestDTO> GetAllTests()
@@ -90,6 +82,10 @@ namespace BLL.Services
 
         public TestDTO GetTest(int? id)
         {
+            if (id == null)
+            {
+                throw new Exception("No test performed yet");
+            }
             id = id ?? LastTestIndex;
 
             Test test = Database.Tests.Get(id.Value);

@@ -1,0 +1,16 @@
+﻿@model IEnumerable<PresentationLayer.Models.TestViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>History</h2>
+<ul class="nav nav-pills nav-stacked">
+    @foreach (var test in Model)
+    {
+        <li>
+            @Html.ActionLink(string.Format("{0} {1}", test.HostURL, test.TestDate),
+            "TestResult", new { id = test.TestId })
+        </li>
+    }
+</ul>
