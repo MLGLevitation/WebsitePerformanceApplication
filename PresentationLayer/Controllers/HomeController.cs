@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using BLL.DTO;
+using BLL.Services;
 using BLL.Services.Interfaces;
 using BLL.Utility;
 using PresentationLayer.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -19,7 +22,7 @@ namespace PresentationLayer.Controllers
             testService = service;
         }
 
-        
+       
         public async Task<ActionResult> Index(SiteMapModel siteMap)
         {
             if (ModelState.IsValid)
@@ -60,5 +63,12 @@ namespace PresentationLayer.Controllers
             }
         }
 
+        public ActionResult History()
+        {
+            MapperConfiguration config = new MapperConfiguration(map => map.CreateMap<TestDTO, TestViewModel>());
+            var mapper = config.CreateMapper();
+            var tests = mapper.Map<IEnumerable<TestDTO>, IEnumerable<TestViewModel>>(testService.GetAllTests());
+            return View(tests);
+        }
     }
 }

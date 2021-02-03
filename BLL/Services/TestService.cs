@@ -6,30 +6,22 @@ using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BLL.Services
 {
     public class TestService : ITestService
     {
-        IUnitOfWork Database { get; set; }
+        IUnitOfWork UOW { get; set; }
         private readonly List<Page> pages;
 
         public TestService(IUnitOfWork db)
         {
-            Database = db;
+            UOW = db;
             pages = new List<Page>();
         }
 
-        private int LastTestIndex
-        {
-            get
-            {
-                return GetAllTests().Select(t => t.TestId).LastOrDefault();
-            }
-        }
-
+        
         public async Task CreateTestAsync(string host)
         {
             List<string> urlAddresses = new UrlParser(host).GetURLAddresses();
@@ -49,15 +41,15 @@ namespace BLL.Services
 
             Test test = new Test()
             {
-                Host = Database.Hosts.GetAll()
-                .Where(h => h.HostURL == host).FirstOrDefault()
+                Host = UOW.Hosts.GetAll()
+                .Where(h => h.HostURL == host).ToList().FirstOrDefault()
                 ?? new Host() { HostURL = host },
                 TestDate = DateTime.Now,
                 Pages = pages
             };
 
-            Database.Tests.Create(test);
-            Database.Save();
+            UOW.Tests.Create(test);
+            UOW.Save();
 
         }
 
@@ -69,15 +61,15 @@ namespace BLL.Services
 
         public IEnumerable<TestDTO> GetAllTests()
         {
-            var testsDTO = from test in Database.Tests.GetAll().AsQueryable()
+            var testsDTO = from test in UOW.Tests.GetAll().AsQueryable()
                            select new TestDTO()
                            {
                                TestId = test.TestId,
                                HostURL = test.Host.HostURL,
                                TestDate = test.TestDate
                            };
-
-            return testsDTO;
+            var result = testsDTO.OrderByDescending(o=>o.TestDate).ToList();
+            return result;
         }
 
         public TestDTO GetTest(int? id)
@@ -86,9 +78,8 @@ namespace BLL.Services
             {
                 throw new Exception("No test performed yet");
             }
-            id = id ?? LastTestIndex;
 
-            Test test = Database.Tests.Get(id.Value);
+            Test test = UOW.Tests.Get(id.Value);
 
             TestDTO testDTO = new TestDTO()
             {
@@ -103,8 +94,7 @@ namespace BLL.Services
         public IEnumerable<PageDTO> GetTestPages(int? id)
         {
 
-            id = id ?? LastTestIndex;
-            Test test = Database.Tests.Get(id.Value);
+            Test test = UOW.Tests.Get(id.Value);
             if (test == null)
                 throw new Exception("Test not found");
 
@@ -112,7 +102,7 @@ namespace BLL.Services
             if (pages == null | pages.Count() == 0)
                 throw new Exception("Pages not found");
 
-            var allPages = Database.Pages.GetAll().OrderByDescending(p => p.ResponseTime).AsQueryable().ToList();
+            var allPages = UOW.Pages.GetAll().OrderByDescending(p => p.ResponseTime).AsQueryable().ToList();
             var pagesDTO = from page in pages.AsQueryable()
                            join maxpage in allPages
                            .Distinct(new PageComparer())
@@ -129,12 +119,12 @@ namespace BLL.Services
                                MinTime = minpage.ResponseTime
                            };
 
-            return pagesDTO;
+            return pagesDTO.ToList();
         }
 
         public void Dispose()
         {
-            Database.Dispose();
+            UOW.Dispose();
         }
     }
 }

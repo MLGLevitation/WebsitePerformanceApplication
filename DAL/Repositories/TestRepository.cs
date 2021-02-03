@@ -30,6 +30,7 @@ namespace DAL.Repositories
             {
                 db.Entry(test).State = EntityState.Deleted;
             }
+
         }
 
         public IEnumerable<Test> Find(Func<Test, bool> predicate)
@@ -39,7 +40,7 @@ namespace DAL.Repositories
 
         public Test Get(int id)
         {
-            return db.Tests.Where(t => t.TestId == id).FirstOrDefault();
+            return db.Tests.Include(h=>h.Host).Where(t => t.TestId == id).FirstOrDefault();
         }
 
         public IEnumerable<Test> GetAll()
