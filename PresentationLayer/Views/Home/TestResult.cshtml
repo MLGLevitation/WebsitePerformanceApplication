@@ -3,18 +3,6 @@
     ViewBag.Title = "Result";
 }
 
-@section Scripts{
-    <script type="text/javascript" src="~/Scripts/loader.js"></script>
-
-    @if (Model != null && Model.Count() > 25)
-    {
-        <script type="text/javascript" src="~/Scripts/timeline.js"></script>
-    }
-    else if (Model != null && Model.Count() < 25)
-    {
-        <script type="text/javascript" src="~/Scripts/bar-timeline.js"></script>
-    }
-}
 <h2>Result</h2>
 
 <h3 align="center">@ViewBag.HostURL</h3>
@@ -24,12 +12,7 @@
 {
     <label>@ViewBag.Error</label>
 }
-<div class="row">
-    <div class="col-md-12">
-        <div id="timeline" style="height: 650px;"></div>
-    </div>
-</div>
-<hr />
+
 <div class="row">
     <div class="col-md-10 col-md-offset-1" id="tblGrid">
         @Html.Partial("Table", Model)

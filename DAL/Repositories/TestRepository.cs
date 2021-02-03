@@ -35,12 +35,12 @@ namespace DAL.Repositories
 
         public IEnumerable<Test> Find(Func<Test, bool> predicate)
         {
-            return db.Tests.Where(predicate);
+            return db.Tests.Where(predicate).ToList();
         }
 
         public Test Get(int id)
         {
-            return db.Tests.Include(h=>h.Host).Where(t => t.TestId == id).FirstOrDefault();
+            return db.Tests.Include(h => h.Host).Where(t => t.TestId == id).FirstOrDefault();
         }
 
         public IEnumerable<Test> GetAll()

@@ -25,11 +25,7 @@ namespace BLL.Services
         public async Task CreateTestAsync(string host)
         {
             List<string> urlAddresses = new UrlParser(host).GetURLAddresses();
-
-            if (urlAddresses == null)
-                throw new Exception("Provide a valid URL");
-
-
+                        
             List<Task> tasks = new List<Task>();
 
             foreach (var url in urlAddresses)
@@ -38,17 +34,15 @@ namespace BLL.Services
             }
             await Task.WhenAll(tasks);
 
-
-            Test test = new Test()
+            UOW.Tests.Create(new Test()
             {
                 Host = UOW.Hosts.GetAll()
-                .Where(h => h.HostURL == host).ToList().FirstOrDefault()
+                .Where(h => h.HostURL == host).FirstOrDefault()
                 ?? new Host() { HostURL = host },
                 TestDate = DateTime.Now,
                 Pages = pages
-            };
+            });
 
-            UOW.Tests.Create(test);
             UOW.Save();
 
         }
@@ -119,7 +113,7 @@ namespace BLL.Services
                                MinTime = minpage.ResponseTime
                            };
 
-            return pagesDTO.ToList();
+            return pagesDTO;
         }
 
         public void Dispose()

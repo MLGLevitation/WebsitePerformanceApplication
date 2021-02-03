@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTO;
-using BLL.Services;
 using BLL.Services.Interfaces;
-using BLL.Utility;
 using PresentationLayer.Models;
 using System;
 using System.Collections;
@@ -22,7 +20,6 @@ namespace PresentationLayer.Controllers
             testService = service;
         }
 
-       
         public async Task<ActionResult> Index(SiteMapModel siteMap)
         {
             if (ModelState.IsValid)
@@ -46,6 +43,10 @@ namespace PresentationLayer.Controllers
         {
             try
             {
+                if (id == null)
+                {
+                    id = testService.GetAllTests().OrderByDescending(t => t.TestDate).FirstOrDefault().TestId;
+                }
                 MapperConfiguration config = new MapperConfiguration(map => map.CreateMap<PageDTO, PageViewModel>());
                 var mapper = config.CreateMapper();
                 pages = mapper.Map<IEnumerable<PageDTO>, IEnumerable<PageViewModel>>(testService.GetTestPages(id));
